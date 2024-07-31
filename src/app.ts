@@ -9,6 +9,7 @@ import session from "express-session";
 import corsConfig from "./config/cors.config";
 
 import passport from "passport";
+import restaurantRouter from "./routes/restaurant.routes";
 
 const app: Application = express();
 
@@ -38,6 +39,8 @@ app.get("/api/v1/", (req, res) => {
     message: "Hello",
   });
 });
+
+app.use("api/v1", restaurantRouter);
 
 app.get("/api/v1/files/:name", download);
 app.get("/api/v1/uploads/:name", download);
