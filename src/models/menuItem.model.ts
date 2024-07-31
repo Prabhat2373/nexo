@@ -4,7 +4,7 @@ interface IMenuItem extends Document {
   name: string;
   description: string;
   price: number;
-  restaurantId: string;
+  restaurantId: Schema.Types.ObjectId;
 }
 
 const menuItemSchema = new Schema<IMenuItem>({

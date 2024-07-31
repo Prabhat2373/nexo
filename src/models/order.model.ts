@@ -1,20 +1,26 @@
 import { Document, Mongoose, Schema, model } from "mongoose";
 
 interface IOrder extends Document {
-  tableId: string;
+  tableId: Schema.Types.ObjectId;
   items: {
     menuItemId: string;
     quantity: number;
   }[];
   totalAmount: number;
   paymentStatus: "unpaid" | "paid" | "pending";
-  restaurantId: string;
+  restaurantId: Schema.Types.ObjectId;
+  customerId: Schema.Types.ObjectId;
 }
 
 const orderSchema = new Schema<IOrder>({
   tableId: {
     type: Schema.Types.ObjectId,
     ref: "Table",
+    required: true,
+  },
+  customerId: {
+    type: Schema.Types.ObjectId,
+    ref: "Customer",
     required: true,
   },
   items: [

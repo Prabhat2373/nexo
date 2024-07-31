@@ -1,9 +1,10 @@
+import UserAccount, { IUserAccount } from "@/models/account.model";
 import jwt from "jsonwebtoken";
 import catchAsyncErrors from "./catchAsyncErrors";
 import ErrorHandler from "../utils/errorHandler";
 import { NextFunction, Request, Response } from "express";
 import { Document, Types } from "mongoose";
-import UserAccount, { IUserAccount } from "../models/account.model";
+// import UserAccount, { IUserAccount } from "../models/account.model";
 
 interface RequestType extends Request {
   cookies: {

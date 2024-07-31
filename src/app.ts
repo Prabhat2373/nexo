@@ -9,11 +9,34 @@ import session from "express-session";
 import corsConfig from "./config/cors.config";
 
 import passport from "passport";
-import restaurantRouter from "./routes/restaurant.routes";
+import restaurantRouter from "./routes/admin/restaurant.routes";
 
 const app: Application = express();
 
 app.use(corsConfig);
+
+import { Server } from "socket.io";
+import http from "http";
+import invoiceRouter from "./routes/admin/invoice.routes";
+
+const server = http.createServer(app);
+const io = new Server(server);
+
+io.on("connection", (socket) => {
+  console.log("a user connected");
+
+  socket.on("join_restaurant", (restaurantId) => {
+    socket.join(restaurantId); // Join room for specific restaurant
+  });
+
+  socket.on("new_order", (order) => {
+    io.to(order.restaurantId).emit("order_update", order); // Emit to specific restaurant room
+  });
+});
+
+server.listen(3000, () => {
+  console.log("Server is listening on port 3000");
+});
 
 app.use(express.json());
 
@@ -34,13 +57,14 @@ app.use(
 app.use(passport.authenticate("session"));
 
 // ROUTES
-app.get("/api/v1/", (req, res) => {
-  return res.json({
-    message: "Hello",
-  });
-});
+// app.get("/api/v1/", (req, res) => {
+//   return res.json({
+//     message: "Hello",
+//   });
+// });
 
-app.use("api/v1", restaurantRouter);
+app.use("/api/v1", restaurantRouter);
+app.use("/api/v1", invoiceRouter);
 
 app.get("/api/v1/files/:name", download);
 app.get("/api/v1/uploads/:name", download);
