@@ -1,9 +1,10 @@
-import UserAccount, { IUserAccount } from "@/models/account.model";
+import UserAccount, { IUserAccount, UserRole } from "@/models/account.model";
 import jwt from "jsonwebtoken";
 import catchAsyncErrors from "./catchAsyncErrors";
 import ErrorHandler from "../utils/errorHandler";
 import { NextFunction, Request, Response } from "express";
 import { Document, Types } from "mongoose";
+import Restaurant from "@/models/restaurant.model";
 // import UserAccount, { IUserAccount } from "../models/account.model";
 
 interface RequestType extends Request {
@@ -58,3 +59,14 @@ export const authorizeRoles = (...roles: string[]) => {
     next();
   };
 };
+
+export const isAdminUser = catchAsyncErrors(
+  async (req: RequestType, res: Response, next: NextFunction) => {
+    console.log("userrole", req?.user);
+    if (req?.user?.role !== UserRole.ADMIN) {
+      return next(new ErrorHandler("Access Denied", 403));
+    }
+
+    next();
+  }
+);

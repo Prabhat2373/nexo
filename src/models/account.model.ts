@@ -1,35 +1,24 @@
-import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import mongoose, { Document, Schema } from "mongoose";
 
 // import findOrCreate from "mongoose-findorcreate";
 const findOrCreate = require("mongoose-findorcreate");
 
 export enum UserRole {
-  READER = "reader",
-  AUTHOR = "author",
+  ADMIN = "admin",
+  OWNER = "owner",
+  CUSTOMER = "customer",
 }
 
-interface CompletedTest {
-  testId: string;
-  answers: { questionId: string; selectedOption: string }[];
-}
 export interface IUserAccount extends Document {
   name: string;
   email: string;
   password?: string;
   avatar?: string;
   isVerified?: boolean;
-
-  followers: mongoose.Types.ObjectId[];
-  following: mongoose.Types.ObjectId[];
-  articles: mongoose.Types.ObjectId[];
   role: UserRole;
-  getJWTToken: () => string;
-  comparePassword: (password: string) => Promise<boolean>;
-  getResetPasswordToken: () => string;
-  completedTests: CompletedTest[];
 }
 
 const userAccountSchema: Schema = new Schema({
@@ -41,10 +30,6 @@ const userAccountSchema: Schema = new Schema({
   password: { type: String, required: false },
   avatar: { type: String },
   role: { type: String },
-  followers: [{ type: Schema.Types.ObjectId, ref: "Account" }],
-  following: [{ type: Schema.Types.ObjectId, ref: "Account" }],
-  articles: [{ type: Schema.Types.ObjectId, ref: "Posts" }],
-  savedPosts: [{ type: Schema.Types.ObjectId, ref: "Posts" }], // Array to store IDs of saved posts
 });
 
 // Hash password before saving

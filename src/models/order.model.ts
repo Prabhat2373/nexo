@@ -10,6 +10,7 @@ interface IOrder extends Document {
   paymentStatus: "unpaid" | "paid" | "pending";
   restaurantId: Schema.Types.ObjectId;
   customerId: Schema.Types.ObjectId;
+  status: "pending" | "completed";
 }
 
 const orderSchema = new Schema<IOrder>({
@@ -50,6 +51,7 @@ const orderSchema = new Schema<IOrder>({
     ref: "Restaurant",
     required: true,
   },
+  status: { type: String, enum: ["pending", "completed"], default: "pending" },
 });
 
 const Order = model<IOrder>("Order", orderSchema);

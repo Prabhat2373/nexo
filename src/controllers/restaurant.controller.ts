@@ -1,13 +1,23 @@
 import catchAsyncErrors from "@/middlewares/catchAsyncErrors";
+import UserAccount, { IUserAccount, UserRole } from "@/models/account.model";
 import Restaurant from "@/models/restaurant.model";
 import { sendApiResponse } from "@/utils/utils";
 import { Request, Response } from "express";
 
 export const addRestaurant = catchAsyncErrors(
   async (req: Request, res: Response) => {
-    const { name, address, email, phone } = req.body;
+    const { name, address, email, phone, password } = req.body;
+
     const newRestaurant = new Restaurant({ name, address, email, phone });
     const savedRestaurant = await newRestaurant.save();
+
+    await UserAccount.create({
+      name,
+      email,
+      password,
+      role: UserRole.ADMIN,
+    });
+
     return sendApiResponse(
       res,
       "success",

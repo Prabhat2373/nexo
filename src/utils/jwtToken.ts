@@ -31,8 +31,6 @@ const sendToken = (
 ): void => {
   let token;
   if (account) {
-    console.log("Freelancer", account);
-
     token = account.getJWTToken();
   }
 
