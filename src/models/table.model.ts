@@ -14,7 +14,7 @@ const tableSchema = new Schema<ITable>({
   },
   qrCode: {
     type: String,
-    required: true,
+    required: false,
   },
   state: {
     type: String,
