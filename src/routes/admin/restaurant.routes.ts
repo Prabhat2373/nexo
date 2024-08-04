@@ -9,9 +9,9 @@ import { isAdminUser, isAuthenticatedUser } from "@/middlewares/Auth";
 import express from "express";
 
 const restaurantRouter = express.Router();
-restaurantRouter.use(isAuthenticatedUser);
-
 restaurantRouter.post("/restaurants", addRestaurant);
+
+restaurantRouter.use(isAuthenticatedUser);
 restaurantRouter.get("/restaurants", getRestaurants);
 restaurantRouter.get("/restaurants/:restaurantId", getRestaurantById);
 restaurantRouter.post(

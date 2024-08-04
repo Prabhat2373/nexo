@@ -20,6 +20,7 @@ import http from "http";
 import invoiceRouter from "./routes/admin/invoice.routes";
 import accountRouter from "./routes/customer/account.routes";
 import orderRouter from "./routes/customer/order.routes";
+import menuRouter from "./routes/admin/menu.routes";
 
 const server = http.createServer(app);
 const io = new Server(server);
@@ -65,10 +66,11 @@ app.use(passport.authenticate("session"));
 //   });
 // });
 
+app.use("/api/v1", accountRouter);
 app.use("/api/v1", restaurantRouter);
 app.use("/api/v1", invoiceRouter);
-app.use("/api/v1", accountRouter);
 app.use("/api/v1", orderRouter);
+app.use("/api/v1", menuRouter);
 
 app.get("/api/v1/files/:name", download);
 app.get("/api/v1/uploads/:name", download);

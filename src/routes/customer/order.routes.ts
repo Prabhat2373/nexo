@@ -5,8 +5,11 @@ import { Router } from "express";
 const orderRouter = Router();
 orderRouter.use(isAuthenticatedUser);
 
-orderRouter.post("/restaurants/:restaurantId/orders", createOrder);
+orderRouter.post(
+  "/restaurants/:restaurantId/tables/:tableId/orders",
+  createOrder
+);
 orderRouter.get("/restaurants/:restaurantId/orders", isAdminUser, getAllOrders);
 // orderRouter.get("/restaurants/:restaurantId/orders", isAdminUser, getAllOrders);
 
-export default orderRouter
+export default orderRouter;

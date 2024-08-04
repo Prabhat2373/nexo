@@ -5,6 +5,7 @@ interface IRestaurant extends Document {
   address: string;
   email: string;
   phone: string;
+  menuItems: Schema.Types.ObjectId;
 }
 
 const restaurantSchema = new Schema<IRestaurant>({
@@ -24,6 +25,13 @@ const restaurantSchema = new Schema<IRestaurant>({
     type: String,
     required: true,
   },
+  menuItems: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "MenuItem",
+      // default: [],
+    },
+  ],
 });
 
 const Restaurant = model<IRestaurant>("Restaurant", restaurantSchema);

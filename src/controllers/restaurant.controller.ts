@@ -1,5 +1,6 @@
 import catchAsyncErrors from "@/middlewares/catchAsyncErrors";
 import UserAccount, { IUserAccount, UserRole } from "@/models/account.model";
+import MenuItem from "@/models/menuItem.model";
 import Restaurant from "@/models/restaurant.model";
 import { sendApiResponse } from "@/utils/utils";
 import { Request, Response } from "express";
@@ -8,7 +9,13 @@ export const addRestaurant = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const { name, address, email, phone, password } = req.body;
 
-    const newRestaurant = new Restaurant({ name, address, email, phone });
+    const newRestaurant = new Restaurant({
+      name,
+      address,
+      email,
+      phone,
+      menuItems: [],
+    });
     const savedRestaurant = await newRestaurant.save();
 
     await UserAccount.create({
@@ -30,7 +37,13 @@ export const addRestaurant = catchAsyncErrors(
 
 export const getRestaurants = catchAsyncErrors(
   async (req: Request, res: Response) => {
-    const restaurants = await Restaurant.find();
+    const restaurants = await Restaurant.find().populate([
+      {
+        path: "menuItems",
+        // model: MenuItem,
+        select: "name description price",
+      },
+    ]);
     return sendApiResponse(
       res,
       "success",

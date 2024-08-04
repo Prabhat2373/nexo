@@ -4,7 +4,8 @@ interface IMenuItem extends Document {
   name: string;
   description: string;
   price: number;
-  restaurantId: Schema.Types.ObjectId;
+  restaurant: Schema.Types.ObjectId;
+  isCustom: boolean;
 }
 
 const menuItemSchema = new Schema<IMenuItem>({
@@ -19,7 +20,7 @@ const menuItemSchema = new Schema<IMenuItem>({
     type: Number,
     required: true,
   },
-  restaurantId: {
+  restaurant: {
     type: Schema.Types.ObjectId,
     ref: "Restaurant",
     required: true,
