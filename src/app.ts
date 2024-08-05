@@ -22,6 +22,7 @@ import accountRouter from "./routes/customer/account.routes";
 import orderRouter from "./routes/customer/order.routes";
 import menuRouter from "./routes/admin/menu.routes";
 import couponRouter from "./routes/admin/coupon.routes";
+import paymentRouter from "./routes/payment.routes";
 
 const server = http.createServer(app);
 const io = new Server(server);
@@ -73,6 +74,7 @@ app.use("/api/v1", invoiceRouter);
 app.use("/api/v1", orderRouter);
 app.use("/api/v1", menuRouter);
 app.use("/api/v1", couponRouter);
+app.use("/api/v1", paymentRouter);
 
 app.get("/api/v1/files/:name", download);
 app.get("/api/v1/uploads/:name", download);

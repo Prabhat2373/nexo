@@ -207,3 +207,20 @@ export const fetchOrdersByCustomer = catchAsyncErrors(
     );
   }
 );
+
+export const getOrderSummary = catchAsyncErrors(
+  async (req: Request, res: Response) => {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId)
+      .populate("customer")
+      .populate("restaurantId")
+      .populate("items.menuItemId");
+
+    if (!order) {
+      return sendApiResponse(res, "error", null, "Order not found", 404);
+    }
+
+    return sendApiResponse(res, "success", order, "Order summary fetched", 200);
+  }
+);

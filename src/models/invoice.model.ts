@@ -8,6 +8,7 @@ export interface IInvoice extends Document {
   status: "paid" | "unpaid";
   createdAt: Date;
   updatedAt: Date;
+  paymentMethod: string;
 }
 
 const InvoiceSchema: Schema = new Schema(
@@ -25,6 +26,9 @@ const InvoiceSchema: Schema = new Schema(
     },
     amount: { type: Number, required: true },
     status: { type: String, enum: ["paid", "unpaid"], default: "unpaid" },
+    paymentMethod: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
