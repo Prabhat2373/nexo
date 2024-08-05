@@ -13,7 +13,7 @@ export const completeOrder = catchAsyncErrors(
     const { orderId } = req.body;
 
     const order = await Order.findById(orderId)
-      .populate("customerId")
+      .populate("customer")
       .populate("restaurantId")
       .populate("items.menuItemId");
 
@@ -33,7 +33,7 @@ export const completeOrder = catchAsyncErrors(
     generateInvoicePDF(order, invoicePath);
 
     await sendEmail({
-      email: order.customerId?.email,
+      email: order.customer?.email,
       subject: "Your Order Invoice",
       message: "Please find attached your order invoice.",
       attachments: [
@@ -118,11 +118,11 @@ export const createOrder = catchAsyncErrors(
 
     // Create the order
     const newOrder = await Order.create({
-      tableId,
+      table: tableId,
       items,
       totalAmount,
       restaurantId,
-      customerId,
+      customer: customerId,
     });
 
     return sendApiResponse(
@@ -136,7 +136,9 @@ export const createOrder = catchAsyncErrors(
 export const getAllOrders = catchAsyncErrors(
   async (req: RequestType, res: Response, next: NextFunction) => {
     const restaurantId = req?.params?.restaurantId;
-    const allOrders = await Order.find({ restaurantId });
+    const allOrders = await Order.find({ restaurantId }).populate(
+      "table customer"
+    );
 
     return sendApiResponse(
       res,
@@ -153,7 +155,7 @@ export const fetchOrdersByCustomer = catchAsyncErrors(
     const customerId = req?.user?.id;
 
     const customerOrders = await Order.find({
-      customerId,
+      customer: customerId,
       restaurantId,
     });
 

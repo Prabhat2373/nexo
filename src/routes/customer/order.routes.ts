@@ -1,4 +1,8 @@
-import { createOrder, getAllOrders } from "@/controllers/order.controller";
+import {
+  completeOrder,
+  createOrder,
+  getAllOrders,
+} from "@/controllers/order.controller";
 import { isAdminUser, isAuthenticatedUser } from "@/middlewares/Auth";
 import { Router } from "express";
 
@@ -10,6 +14,11 @@ orderRouter.post(
   createOrder
 );
 orderRouter.get("/restaurants/:restaurantId/orders", isAdminUser, getAllOrders);
+orderRouter.post(
+  "/restaurants/:restaurantId/orders",
+  isAdminUser,
+  completeOrder
+);
 // orderRouter.get("/restaurants/:restaurantId/orders", isAdminUser, getAllOrders);
 
 export default orderRouter;

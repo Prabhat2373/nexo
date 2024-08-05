@@ -12,10 +12,10 @@ export const generateInvoicePDF = (invoice: IInvoice) => {
   doc.fontSize(20).text("Invoice", { align: "center" });
   doc.text("----------------------------------------");
   doc.fontSize(14).text(`Invoice ID: ${invoice._id}`);
-  doc.text(`Order ID: ${invoice.orderId}`);
-  doc.text(`Customer ID: ${invoice.customerId}`);
+  doc.text(`Order ID: ${invoice._id}`);
+  doc.text(`Customer ID: ${invoice.customer?.id}`);
   doc.text(`Restaurant ID: ${invoice.restaurantId}`);
-  doc.text(`Amount: $${invoice.amount}`);
+  doc.text(`Amount: $${invoice.totalAmount}`);
   doc.text(`Status: ${invoice.status}`);
   doc.text("----------------------------------------");
 

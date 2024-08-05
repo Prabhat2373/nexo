@@ -1,7 +1,7 @@
 import { Document, Mongoose, Schema, model } from "mongoose";
 
 interface IOrder extends Document {
-  tableId: Schema.Types.ObjectId;
+  table: Schema.Types.ObjectId;
   items: {
     menuItemId: string;
     quantity: number;
@@ -9,19 +9,19 @@ interface IOrder extends Document {
   totalAmount: number;
   paymentStatus: "unpaid" | "paid" | "pending";
   restaurantId: Schema.Types.ObjectId;
-  customerId: Schema.Types.ObjectId;
+  customer: Schema.Types.ObjectId;
   status: "pending" | "completed";
 }
 
 const orderSchema = new Schema<IOrder>({
-  tableId: {
+  table: {
     type: Schema.Types.ObjectId,
     ref: "Table",
     required: true,
   },
-  customerId: {
+  customer: {
     type: Schema.Types.ObjectId,
-    ref: "Customer",
+    ref: "Account",
     required: true,
   },
   items: [
