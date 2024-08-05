@@ -6,6 +6,11 @@ interface IOrder extends Document {
     menuItemId: string;
     quantity: number;
   }[];
+  subTotal: number;
+  discount: number;
+  tax: number;
+  platformFee: number;
+  otherCharges: number;
   totalAmount: number;
   paymentStatus: "unpaid" | "paid" | "pending";
   restaurantId: Schema.Types.ObjectId;
@@ -37,6 +42,29 @@ const orderSchema = new Schema<IOrder>({
       },
     },
   ],
+  subTotal: {
+    type: Number,
+    required: true,
+  },
+  discount: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  tax: {
+    type: Number,
+    required: true,
+  },
+  platformFee: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  otherCharges: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
   totalAmount: {
     type: Number,
     required: true,

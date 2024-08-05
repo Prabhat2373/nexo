@@ -15,7 +15,7 @@ orderRouter.post(
 );
 orderRouter.get("/restaurants/:restaurantId/orders", isAdminUser, getAllOrders);
 orderRouter.post(
-  "/restaurants/:restaurantId/orders",
+  "/restaurants/:restaurantId/orders/checkout",
   isAdminUser,
   completeOrder
 );

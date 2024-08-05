@@ -1,5 +1,6 @@
 import { RequestType } from "@/constants/AppConstants";
 import catchAsyncErrors from "@/middlewares/catchAsyncErrors";
+import Coupon from "@/models/coupon.model";
 import MenuItem from "@/models/menuItem.model";
 import Order from "@/models/order.model";
 import sendEmail from "@/service/email.service";
@@ -32,18 +33,18 @@ export const completeOrder = catchAsyncErrors(
     );
     generateInvoicePDF(order, invoicePath);
 
-    await sendEmail({
-      email: order.customer?.email,
-      subject: "Your Order Invoice",
-      message: "Please find attached your order invoice.",
-      attachments: [
-        {
-          filename: `${order._id}.pdf`,
-          path: invoicePath,
-          contentType: "application/pdf",
-        },
-      ],
-    });
+    // await sendEmail({
+    //   email: order.customer?.email,
+    //   subject: "Your Order Invoice",
+    //   message: "Please find attached your order invoice.",
+    //   attachments: [
+    //     {
+    //       filename: `${order._id}.pdf`,
+    //       path: invoicePath,
+    //       contentType: "application/pdf",
+    //     },
+    //   ],
+    // });
 
     return sendApiResponse(
       res,
@@ -57,17 +58,48 @@ export const completeOrder = catchAsyncErrors(
 
 // export const createOrder = catchAsyncErrors(
 //   async (req: RequestType, res: Response, next: NextFunction) => {
-//     const { tableId, restaurantId } = req?.params;
-//     const { items, totalAmount } = req?.body;
+//     const { tableId, restaurantId } = req.params;
+//     const { items } = req.body; // items: Array of objects { menuItemId, quantity }
 
-//     const customerId = req?.user?.id;
+//     const customerId = req.user?.id;
 
+//     // Initialize total amount
+//     let totalAmount = 0;
+
+//     // Fetch all menu items based on provided item IDs
+//     const menuItemIds = items.map((item) => item.menuItemId);
+//     const menuItems = await MenuItem.find({ _id: { $in: menuItemIds } });
+
+//     // Create a map of menu items for easy lookup
+//     const menuItemMap = new Map(
+//       menuItems.map((item) => [item._id.toString(), item])
+//     );
+
+//     // Calculate total amount
+//     items.forEach((item) => {
+//       const menuItem = menuItemMap.get(item.menuItemId.toString());
+//       if (menuItem) {
+//         totalAmount += menuItem.price * item.quantity;
+//       } else {
+//         // Handle case where menu item is not found
+//         console.error(`Menu item with ID ${item.menuItemId} not found.`);
+//         return sendApiResponse(
+//           res,
+//           "error",
+//           null,
+//           `Menu item with ID ${item.menuItemId} not found.`,
+//           400
+//         );
+//       }
+//     });
+
+//     // Create the order
 //     const newOrder = await Order.create({
-//       tableId,
+//       table: tableId,
 //       items,
 //       totalAmount,
 //       restaurantId,
-//       customerId,
+//       customer: customerId,
 //     });
 
 //     return sendApiResponse(
@@ -80,56 +112,64 @@ export const completeOrder = catchAsyncErrors(
 // );
 
 export const createOrder = catchAsyncErrors(
-  async (req: RequestType, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const { tableId, restaurantId } = req.params;
-    const { items } = req.body; // items: Array of objects { menuItemId, quantity }
+    const { items, couponCode } = req.body;
 
-    const customerId = req.user?.id;
+    const customerId = req?.user?.id;
 
-    // Initialize total amount
-    let totalAmount = 0;
+    // Calculate subTotal
+    let subTotal = 0;
+    for (const item of items) {
+      const menuItem = await MenuItem.findById(item.menuItem);
+      if (menuItem) {
+        subTotal += menuItem.price * item.quantity;
+      }
+    }
 
-    // Fetch all menu items based on provided item IDs
-    const menuItemIds = items.map((item) => item.menuItemId);
-    const menuItems = await MenuItem.find({ _id: { $in: menuItemIds } });
+    // Apply coupon if available
+    let couponAmount = 0;
+    if (couponCode) {
+      const coupon = await Coupon.findOne({
+        code: couponCode,
+        restaurantId: restaurantId,
+        validFrom: { $lte: new Date() },
+        validTo: { $gte: new Date() },
+      });
+      if (coupon) {
+        couponAmount = (subTotal * coupon.percentage) / 100;
+      }
+    }
 
-    // Create a map of menu items for easy lookup
-    const menuItemMap = new Map(
-      menuItems.map((item) => [item._id.toString(), item])
-    );
+    const subTotalAfterCoupon = subTotal - couponAmount;
+
+    // Calculate tax, platform fee, and other charges
+    const tax = (subTotalAfterCoupon * Number(process.env.TAX_RATE)) / 100; // Example: 10% tax
+    const platformFee = (subTotalAfterCoupon * 2) / 100; // Example: 2% platform fee
+    const otherCharges = Number(process.env.OTHER_CHARGES); // Example: Fixed other charges
 
     // Calculate total amount
-    items.forEach((item) => {
-      const menuItem = menuItemMap.get(item.menuItemId.toString());
-      if (menuItem) {
-        totalAmount += menuItem.price * item.quantity;
-      } else {
-        // Handle case where menu item is not found
-        console.error(`Menu item with ID ${item.menuItemId} not found.`);
-        return sendApiResponse(
-          res,
-          "error",
-          null,
-          `Menu item with ID ${item.menuItemId} not found.`,
-          400
-        );
-      }
-    });
+    const totalAmount = subTotalAfterCoupon + tax + platformFee + otherCharges;
 
-    // Create the order
     const newOrder = await Order.create({
-      table: tableId,
+      tableId,
       items,
+      subTotal,
+      coupon: couponAmount,
+      tax,
+      platformFee,
+      otherCharges,
       totalAmount,
       restaurantId,
-      customer: customerId,
+      customerId,
     });
 
     return sendApiResponse(
       res,
       "success",
       newOrder,
-      "Order Created Successfully!"
+      "Order created successfully",
+      201
     );
   }
 );
