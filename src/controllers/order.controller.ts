@@ -1,5 +1,6 @@
 import { RequestType } from "@/constants/AppConstants";
 import catchAsyncErrors from "@/middlewares/catchAsyncErrors";
+import MenuItem from "@/models/menuItem.model";
 import Order from "@/models/order.model";
 import sendEmail from "@/service/email.service";
 import { generateInvoicePDF } from "@/service/invoice.service";
@@ -54,12 +55,68 @@ export const completeOrder = catchAsyncErrors(
   }
 );
 
+// export const createOrder = catchAsyncErrors(
+//   async (req: RequestType, res: Response, next: NextFunction) => {
+//     const { tableId, restaurantId } = req?.params;
+//     const { items, totalAmount } = req?.body;
+
+//     const customerId = req?.user?.id;
+
+//     const newOrder = await Order.create({
+//       tableId,
+//       items,
+//       totalAmount,
+//       restaurantId,
+//       customerId,
+//     });
+
+//     return sendApiResponse(
+//       res,
+//       "success",
+//       newOrder,
+//       "Order Created Successfully!"
+//     );
+//   }
+// );
+
 export const createOrder = catchAsyncErrors(
   async (req: RequestType, res: Response, next: NextFunction) => {
-    const { tableId, items, totalAmount, restaurantId } = req?.body;
+    const { tableId, restaurantId } = req.params;
+    const { items } = req.body; // items: Array of objects { menuItemId, quantity }
 
-    const customerId = req?.user?.id;
+    const customerId = req.user?.id;
 
+    // Initialize total amount
+    let totalAmount = 0;
+
+    // Fetch all menu items based on provided item IDs
+    const menuItemIds = items.map((item) => item.menuItemId);
+    const menuItems = await MenuItem.find({ _id: { $in: menuItemIds } });
+
+    // Create a map of menu items for easy lookup
+    const menuItemMap = new Map(
+      menuItems.map((item) => [item._id.toString(), item])
+    );
+
+    // Calculate total amount
+    items.forEach((item) => {
+      const menuItem = menuItemMap.get(item.menuItemId.toString());
+      if (menuItem) {
+        totalAmount += menuItem.price * item.quantity;
+      } else {
+        // Handle case where menu item is not found
+        console.error(`Menu item with ID ${item.menuItemId} not found.`);
+        return sendApiResponse(
+          res,
+          "error",
+          null,
+          `Menu item with ID ${item.menuItemId} not found.`,
+          400
+        );
+      }
+    });
+
+    // Create the order
     const newOrder = await Order.create({
       tableId,
       items,
@@ -76,7 +133,6 @@ export const createOrder = catchAsyncErrors(
     );
   }
 );
-
 export const getAllOrders = catchAsyncErrors(
   async (req: RequestType, res: Response, next: NextFunction) => {
     const restaurantId = req?.params?.restaurantId;
