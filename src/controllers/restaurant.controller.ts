@@ -1,6 +1,5 @@
 import catchAsyncErrors from "@/middlewares/catchAsyncErrors";
-import UserAccount, { IUserAccount, UserRole } from "@/models/account.model";
-import MenuItem from "@/models/menuItem.model";
+import UserAccount, { UserRole } from "@/models/account.model";
 import Restaurant from "@/models/restaurant.model";
 import { sendApiResponse } from "@/utils/utils";
 import { Request, Response } from "express";
@@ -23,6 +22,7 @@ export const addRestaurant = catchAsyncErrors(
       email,
       password,
       role: UserRole.ADMIN,
+      restaurant: savedRestaurant?._id,
     });
 
     return sendApiResponse(

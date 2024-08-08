@@ -3,7 +3,7 @@ import {
   getPredefinedMenuItems,
   getRestaurantMenuItems,
 } from "@/controllers/menu.controller";
-import { isAdminUser } from "@/middlewares/Auth";
+import { isAdminUser, isAuthenticatedUser } from "@/middlewares/Auth";
 import { Router } from "express";
 
 // import { isAuthenticatedRestaurant } from "../middleware/auth";
@@ -15,7 +15,8 @@ menuRouter.get("/predefined-menu-items", getPredefinedMenuItems);
 
 // Add predefined menu items to a restaurant's menu
 menuRouter.post(
-  "/restaurants/:restaurantId/menu-items",
+  "/restaurants/menu-items",
+  isAuthenticatedUser,
   isAdminUser,
   addMenuItem
 );
@@ -29,7 +30,8 @@ menuRouter.post(
 
 // Get all menu items for a specific restaurant
 menuRouter.get(
-  "/restaurants/:restaurantId/menu-items",
+  "/restaurants/menu-items",
+  isAuthenticatedUser,
   isAdminUser,
   getRestaurantMenuItems
 );

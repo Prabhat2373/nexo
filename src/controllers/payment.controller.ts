@@ -1,5 +1,6 @@
 import Razorpay from "razorpay";
-
+import dotenv from "dotenv";
+dotenv.config({ path: "./.env" });
 import crypto from "crypto";
 import catchAsyncErrors from "@/middlewares/catchAsyncErrors";
 import Order from "@/models/order.model";

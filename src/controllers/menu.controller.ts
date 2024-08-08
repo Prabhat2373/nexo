@@ -1,3 +1,4 @@
+import { RequestType } from "@/constants/AppConstants";
 import catchAsyncErrors from "@/middlewares/catchAsyncErrors";
 import MenuItem from "@/models/menuItem.model";
 import PredefinedMenuItem from "@/models/predefinedMenuItem";
@@ -69,8 +70,9 @@ export const getPredefinedMenuItems = catchAsyncErrors(
 // );
 
 export const addMenuItem = catchAsyncErrors(
-  async (req: Request, res: Response) => {
-    const { restaurantId } = req.params;
+  async (req: RequestType, res: Response) => {
+    const restaurantId = req.user?.restaurant?.toString();
+
     const { name, price, description } = req.body;
 
     const newMenuItem = new MenuItem({
@@ -103,11 +105,9 @@ export const addMenuItem = catchAsyncErrors(
 
 // Get all menu items for a specific restaurant
 export const getRestaurantMenuItems = catchAsyncErrors(
-  async (req: Request, res: Response) => {
-    const { restaurantId } = req.params;
-    const items = await MenuItem.find({ restaurantId }).populate(
-      "predefinedMenuItemId"
-    );
+  async (req: RequestType, res: Response) => {
+    const restaurant = req.user?.restaurant?.toString();
+    const items = await MenuItem.find({ restaurant });
     return sendApiResponse(
       res,
       "success",

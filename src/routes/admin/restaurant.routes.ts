@@ -3,7 +3,7 @@ import {
   getRestaurantById,
   getRestaurants,
 } from "@/controllers/restaurant.controller";
-import { addMultipleTables } from "@/controllers/table.controller";
+import { addMultipleTables, getTables } from "@/controllers/table.controller";
 // import { addTable } from "@/controllers/table.controller";
 import { isAdminUser, isAuthenticatedUser } from "@/middlewares/Auth";
 import express from "express";
@@ -19,6 +19,11 @@ restaurantRouter.post(
 
   isAdminUser,
   addMultipleTables
+);
+restaurantRouter.get(
+  "/restaurants/:restaurantId/tables",
+  isAuthenticatedUser,
+  getTables
 );
 
 export default restaurantRouter;

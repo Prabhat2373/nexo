@@ -1,8 +1,10 @@
+import { RequestType } from "@/constants/AppConstants";
 import catchAsyncErrors from "@/middlewares/catchAsyncErrors";
 import UserAccount, { IUserAccount, UserRole } from "@/models/account.model";
+import Restaurant from "@/models/restaurant.model";
 import sendToken from "@/utils/jwtToken";
 import { sendApiResponse } from "@/utils/utils";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 export const registerUser = catchAsyncErrors(
   async (req: Request, res: Response) => {
@@ -64,5 +66,54 @@ export const loginUser = catchAsyncErrors(
     }
 
     sendToken(userAccount, userAccount, 200, res);
+  }
+);
+
+// export const getProfile = catchAsyncErrors(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     const { id } = req.params;
+//     const userProfile = await UserAccount.findById(id);
+
+//     return sendApiResponse(
+//       res,
+//       "success",
+//       userProfile,
+//       "Profile fetched successfully"
+//     );
+//   }
+// );
+
+export const getProfile = catchAsyncErrors(
+  async (req: RequestType, res: Response) => {
+    if (req.user) {
+      console.log("requestuser", req.user);
+      // Fetch user account without password
+      const userAccount = await UserAccount.findById(req.user.id)
+        .select("-password")
+        .exec();
+
+      if (!userAccount) {
+        return sendApiResponse(res, "error", null, "User not found", 400);
+      }
+
+      let account = userAccount;
+
+      if (userAccount.role == UserRole.ADMIN) {
+        const restaurant = await Restaurant.findOne({
+          email: userAccount?.email,
+        });
+        console.log("restaurant", restaurant);
+        account.restaurant = restaurant;
+      }
+      console.log("account", account);
+      return sendApiResponse(
+        res,
+        "success",
+        account, // Return the combined object
+        "User found successfully"
+      );
+    } else {
+      return sendApiResponse(res, "error", {}, "Account not found", 401);
+    }
   }
 );

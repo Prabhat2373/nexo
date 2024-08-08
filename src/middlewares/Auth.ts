@@ -36,9 +36,13 @@ export const isAuthenticatedUser = catchAsyncErrors(
     ) as { id: string } | null;
     console.log("decodedData", decodedData);
 
-    req.user = (await UserAccount.findById(
+    const authUser = (await UserAccount.findById(
       decodedData?.id
     )) as RequestType["user"];
+
+    console.log("authUser", authUser);
+
+    req.user = authUser;
     // console.log('user', req.user._id)
 
     next();

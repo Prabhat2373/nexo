@@ -12,6 +12,7 @@ export const ErrorMiddleware = (
 
   // Wrong Mongodb Id error
   if (err.name === "CastError") {
+    console.log("error", err?.message);
     const message = `Resource not found. Invalid: ${err.path}`;
     err = new ErrorHandler(message, 400);
   }

@@ -11,7 +11,7 @@ import path from "path";
 
 export const completeOrder = catchAsyncErrors(
   async (req: Request, res: Response) => {
-    const { orderId } = req.body;
+    const { orderId } = req.params;
 
     const order = await Order.findById(orderId)
       .populate("customer")

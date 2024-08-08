@@ -69,10 +69,11 @@ app.use(passport.authenticate("session"));
 // });
 
 app.use("/api/v1", accountRouter);
+app.use("/api/v1", menuRouter);
 app.use("/api/v1", restaurantRouter);
 app.use("/api/v1", invoiceRouter);
 app.use("/api/v1", orderRouter);
-app.use("/api/v1", menuRouter);
+
 app.use("/api/v1", couponRouter);
 app.use("/api/v1", paymentRouter);
 

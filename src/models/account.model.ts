@@ -19,6 +19,7 @@ export interface IUserAccount extends Document {
   avatar?: string;
   isVerified?: boolean;
   role: UserRole;
+  restaurant?: Schema.Types.ObjectId;
 }
 
 const userAccountSchema: Schema = new Schema({
@@ -30,6 +31,11 @@ const userAccountSchema: Schema = new Schema({
   password: { type: String, required: false },
   avatar: { type: String },
   role: { type: String },
+  restaurant: {
+    type: Schema.Types.ObjectId,
+    ref: "Restaurant",
+    required: false,
+  },
 });
 
 // Hash password before saving
